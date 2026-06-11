@@ -1,9 +1,11 @@
 package com.mangesh.IronBank.repository;
 
-import org.apache.catalina.User;
+import com.mangesh.IronBank.model.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TransactionRepository extends JpaRepository<User,Long>
-{
+import java.util.List;
 
+public interface TransactionRepository extends JpaRepository<Transaction,Long>
+{
+    List<Transaction> findByFromAccountIdOrToAccountId(Long fromId, Long toId);
 }
