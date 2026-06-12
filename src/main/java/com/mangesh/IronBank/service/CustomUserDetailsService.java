@@ -26,6 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService
                 .roles(user.getRole().name())
                 .accountLocked(user.isLocked())
                 .build();
+
     }
 
 
