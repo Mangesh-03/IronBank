@@ -15,6 +15,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class TransactionService {
 
@@ -97,4 +100,36 @@ public class TransactionService {
                 .createdAt(saved.getCreatedAt())
                 .build();
     }
+
+    public List<TransactionResponse> getTransactionHistory(String accountNumber, String loggedInEmail) {
+
+        // Step 1: Find account by accountNumber
+        Account account = accountRepository
+                .findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
+        // Step 2: IDOR check
+        if (!account.getUser().getEmail().equals(loggedInEmail)) {
+            throw new UnauthorizedAccessException("You don't own this account!");
+        }
+
+        // Step 3: Find all transactions
+        List<Transaction> transactions = transactionRepository
+                .findByFromAccountOrToAccount(account, account);
+
+        // Step 4: Convert to List<TransactionResponse> using stream
+        return transactions.stream()
+                .map(txn -> TransactionResponse.builder()
+                        .id(txn.getId())
+                        .fromAccountNumber(txn.getFromAccount().getAccountNumber())
+                        .toAccountNumber(txn.getToAccount().getAccountNumber())
+                        .amount(txn.getAmount())
+                        .type(txn.getType())
+                        .status(txn.getStatus())
+                        .description(txn.getDescription())
+                        .createdAt(txn.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 }
