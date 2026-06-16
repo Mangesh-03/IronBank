@@ -1,13 +1,11 @@
 package com.mangesh.IronBank.model;
 
-import jakarta.annotation.Resource;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
 
@@ -31,8 +29,11 @@ public class User {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-    private boolean isLocked;
-    private int failedAttempts;
 
+    private boolean isLocked;
+
+    private LocalDateTime lockedAt;
+
+    private int failedAttempts;
 
 }

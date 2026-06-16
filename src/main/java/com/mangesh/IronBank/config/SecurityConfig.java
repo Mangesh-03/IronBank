@@ -32,6 +32,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/audit/**").hasAnyRole("ADMIN", "AUDITOR")
                         .anyRequest().authenticated()
                 )
+                .formLogin(form -> form.disable())    // ← ADD THIS
+            .httpBasic(basic -> basic.disable())  // ← AND THIS
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
