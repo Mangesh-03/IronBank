@@ -13,7 +13,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
@@ -55,5 +57,26 @@ public class AccountService {
                 .isActive(saveAcc.isActive())
                 .createdAt(saveAcc.getCreatedAt())
                 .build();
+    }
+
+    public List<AccountResponse> getMyAccounts(String email)
+    {
+        // Step 1: Find user by email from DB
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("User not found!"));
+
+        // step 2: Find all accounts by user
+        List<Account> myAccount = accountRepository.findByUserId(user.getId());
+
+        // step 3: Convert each Account → AccountResponse and  Return List<AccountResponse>
+        return myAccount.stream()
+                .map(account -> AccountResponse.builder()
+                        .id(account.getId())
+                        .accountNumber(account.getAccountNumber())
+                        .accountType(account.getAccountType())
+                        .balance(account.getBalance())
+                        .isActive(account.isActive())
+                        .createdAt(account.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

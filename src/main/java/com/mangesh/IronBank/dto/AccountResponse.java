@@ -21,7 +21,6 @@ public class AccountResponse
     private AccountType accountType;
     private BigDecimal balance;
 
-    @JsonProperty("isActive")
     private boolean isActive;
 
     private LocalDateTime createdAt;
