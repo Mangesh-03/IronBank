@@ -19,7 +19,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: logfile29@gmail.com
-    password: xxxx xxxx xxxx xxxx  # ← your app password here
+    password: obap nppd cmet gcex  # ← your app password here
     properties:
       mail:
         smtp:
@@ -36,3 +36,5 @@ server:
     include-stacktrace: never
     include-message: never
 
+otp:
+  expiration : 900000

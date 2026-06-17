@@ -29,6 +29,9 @@ public class AccountService {
     @Autowired
     private AuditService auditService;
 
+    @Autowired
+    private EmailService emailService;
+
     @Transactional
     public AccountResponse createAccount(CreateAccountRequest request, String email)
     {
@@ -54,6 +57,8 @@ public class AccountService {
 
         // Account created
         auditService.log(email, "ACCOUNT_CREATED", "SUCCESS", null);
+
+        emailService.accountCreated(email,accountNumber);
 
         return AccountResponse.builder()
                 .id(saveAcc.getId())
