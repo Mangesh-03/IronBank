@@ -15,6 +15,18 @@ spring:
     properties:
       hibernate:
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: logfile29@gmail.com
+    password: xxxx xxxx xxxx xxxx  # ← your app password here
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 jwt:
   secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
   expiration: 900000
@@ -23,3 +35,4 @@ server:
   error:
     include-stacktrace: never
     include-message: never
+

@@ -31,6 +31,7 @@ public class User {
     private LocalDateTime createdAt;
 
     private boolean isLocked;
+    private boolean isVerified = false;
 
     private LocalDateTime lockedAt;
 

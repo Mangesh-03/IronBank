@@ -6,31 +6,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "audit_logs")
+@Table(name = "otp_verification")
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class AuditLog
+public class OtpVerification
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String email;
-
-    private String action;
-
-    private String ipAddress;
-
-    private String status;
-
+    private String otp;
+    private LocalDateTime expiresAt;
+    private boolean isUsed;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-
 }

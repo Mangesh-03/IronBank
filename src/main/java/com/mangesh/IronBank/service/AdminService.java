@@ -17,6 +17,9 @@ public class AdminService
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AuditService auditService;
+
     // Method 1: getAllUsers
     public List<UserResponse> getAllUsers()
     {
@@ -26,6 +29,10 @@ public class AdminService
         // convert to UserResponse (never expose password!)
         // return list
         // getAllUsers - add stream
+
+        // Admin viewed all users
+        auditService.log("admin@ironbank.com", "VIEW_ALL_USERS", "SUCCESS", null);
+
         return users.stream()
                 .map(user -> UserResponse.builder()
                         .id(user.getId())
@@ -61,6 +68,9 @@ public class AdminService
 
         // save user
         userRepository.save(user);
+
+        // Account unlocked by admin
+        auditService.log(email, "ACCOUNT_UNLOCKED", "SUCCESS", null);
 
         // return success message
         return "Unlocked Successfully !";

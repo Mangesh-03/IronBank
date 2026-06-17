@@ -26,6 +26,9 @@ public class AccountService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AuditService auditService;
+
     @Transactional
     public AccountResponse createAccount(CreateAccountRequest request, String email)
     {
@@ -49,6 +52,9 @@ public class AccountService {
 
         Account saveAcc = accountRepository.save(account);
 
+        // Account created
+        auditService.log(email, "ACCOUNT_CREATED", "SUCCESS", null);
+
         return AccountResponse.builder()
                 .id(saveAcc.getId())
                 .accountType(saveAcc.getAccountType())
@@ -68,6 +74,10 @@ public class AccountService {
         List<Account> myAccount = accountRepository.findByUserId(user.getId());
 
         // step 3: Convert each Account → AccountResponse and  Return List<AccountResponse>
+
+        // Viewed my accounts
+        auditService.log(email, "VIEW_ACCOUNTS", "SUCCESS", null);
+
         return myAccount.stream()
                 .map(account -> AccountResponse.builder()
                         .id(account.getId())

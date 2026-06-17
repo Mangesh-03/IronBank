@@ -8,6 +8,7 @@ import com.mangesh.IronBank.exception.AccountLockedException;
 import com.mangesh.IronBank.exception.DuplicateResourceException;
 import com.mangesh.IronBank.exception.InvalidCredentialsException;
 import com.mangesh.IronBank.exception.ResourceNotFoundException;
+import com.mangesh.IronBank.model.AuditLog;
 import com.mangesh.IronBank.model.Role;
 import com.mangesh.IronBank.model.User;
 import com.mangesh.IronBank.repository.UserRepository;
@@ -38,9 +39,12 @@ public class AuthService {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+    @Autowired
+    private AuditService auditService;
+
     // Method 1: register
     @Transactional
-    public RegisterResponse register(RegisterRequest request)
+    public RegisterResponse register(RegisterRequest request,String ipAddress)
     {
         // Step 1: Check if email already exists
 
@@ -66,6 +70,9 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
+        // Rgistered successfully
+        auditService.log(request.getEmail(), "REGISTER", "SUCCESS", ipAddress);
+
         // Step 4: Return RegisterResponse
         return RegisterResponse.builder()
                 .id(savedUser.getId())
@@ -78,7 +85,7 @@ public class AuthService {
 
     // Method 2: login
     @Transactional(dontRollbackOn = InvalidCredentialsException.class)
-    public LoginResponse login(LoginRequest request)
+    public LoginResponse login(LoginRequest request,String ip)
     {
         // Step 1: Find user by email (throw exception if not found)
         User savedUser = userRepository.findByEmail(request.getEmail()).orElseThrow(()-> new ResourceNotFoundException("User not found !"));
@@ -87,6 +94,10 @@ public class AuthService {
         if(savedUser.isLocked())
         {
             System.out.println("Account Locked");
+
+            // Account already locked
+            auditService.log(request.getEmail(), "LOGIN_BLOCKED", "FAILED", ip);
+
             if(savedUser.getLockedAt().plusMinutes(30).isAfter(LocalDateTime.now()))
             {
                 throw new AccountLockedException("Account locked. Try after 30 minutes!");
@@ -103,12 +114,19 @@ public class AuthService {
         // Step 2: Check password matches using passwordEncoder.matches()
         if( !passwordEncoder.matches(request.getPassword(),savedUser.getPassword()))
         {
+            // failed attempt
+            auditService.log(request.getEmail(), "FAILED_LOGIN", "FAILED", ip);
+
             System.out.println("Value of failed attempts 1st: " + savedUser.getFailedAttempts());
             savedUser.setFailedAttempts(savedUser.getFailedAttempts() + 1);
 
             if(savedUser.getFailedAttempts() >= 5)
             {
                 savedUser.setLocked(true);
+
+                // Account lock
+                auditService.log(request.getEmail(), "ACCOUNT_LOCKED", "FAILED", ip);
+
                 savedUser.setLockedAt(LocalDateTime.now());  // ← set lockout time!
 
             }
@@ -126,6 +144,9 @@ public class AuthService {
         UserDetails userDetails = customUserDetailsService
                 .loadUserByUsername(savedUser.getEmail());
         String jwtToken = jwtTokenProvider.generateToken(userDetails);
+
+        // On successful login
+        auditService.log(request.getEmail(), "LOGIN", "SUCCESS", ip);
 
         // Step 4: Return LoginResponse with token
         return LoginResponse.builder()

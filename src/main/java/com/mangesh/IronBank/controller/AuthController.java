@@ -5,6 +5,7 @@ import com.mangesh.IronBank.dto.LoginResponse;
 import com.mangesh.IronBank.dto.RegisterRequest;
 import com.mangesh.IronBank.dto.RegisterResponse;
 import com.mangesh.IronBank.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,15 +23,19 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(
-            @Valid @RequestBody RegisterRequest request)
+            @Valid @RequestBody RegisterRequest request,  HttpServletRequest httpRequest)
     {
-        return ResponseEntity.ok(authService.register(request));
+        String ip = httpRequest.getRemoteAddr();
+
+        return ResponseEntity.ok(authService.register(request,ip));
     }
 
+
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
-            @Valid @RequestBody LoginRequest request)
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request , HttpServletRequest httpRequest)
     {
-        return ResponseEntity.ok(authService.login(request));
+        String ip = httpRequest.getRemoteAddr();
+
+        return ResponseEntity.ok(authService.login(request,ip));
     }
 }

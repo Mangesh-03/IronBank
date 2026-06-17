@@ -30,6 +30,9 @@ public class TransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    @Autowired
+    private AuditService auditService;
+
     // Method 1
     @Transactional
     public TransactionResponse transfer(TransactionRequest request, String loggedInEmail) {
@@ -44,6 +47,9 @@ public class TransactionService {
 
         if(!fromAccount.getUser().getEmail().equals(loggedInEmail))
         {
+            //  IDOR attempt caught
+            auditService.log(loggedInEmail, "UNAUTHORIZED_TRANSFER", "FAILED", null);
+
             throw new UnauthorizedAccessException("You don't own this account!");
         }
 
@@ -58,6 +64,9 @@ public class TransactionService {
 
         if(fromAccount.getBalance().compareTo(request.getAmount()) < 0)
         {
+            // Insufficient funds
+            auditService.log(loggedInEmail, "TRANSFER_FAILED", "FAILED", null);
+
             throw new InsufficientFundsException("Low balance");
         }
 
@@ -93,6 +102,9 @@ public class TransactionService {
 
         // Step 9: Return TransactionResponse
 
+        //  Successful transfer
+        auditService.log(loggedInEmail, "TRANSFER", "SUCCESS", null);
+
         return TransactionResponse.builder()
                 .id(saved.getId())
                 .fromAccountNumber(fromAccount.getAccountNumber())
@@ -114,7 +126,11 @@ public class TransactionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
         // Step 2: IDOR( Insecure Direct Object Reference )check
-        if (!account.getUser().getEmail().equals(loggedInEmail)) {
+        if (!account.getUser().getEmail().equals(loggedInEmail))
+        {
+            // IDOR attempt caught
+            auditService.log(loggedInEmail, "UNAUTHORIZED_TRANSFER", "FAILED", null);
+
             throw new UnauthorizedAccessException("You don't own this account!");
         }
 
@@ -148,6 +164,9 @@ public class TransactionService {
         // step 2: check is he owner of account
         if(!account.getUser().getEmail().equals(loggedInEmail))
         {
+            // IDOR attempt caught
+            auditService.log(loggedInEmail, "UNAUTHORIZED_TRANSFER", "FAILED", null);
+
             throw new UnauthorizedAccessException("Unauthorized access");
         }
 
@@ -156,6 +175,9 @@ public class TransactionService {
 
         // step 4 : saved account
         Account saved = accountRepository.save(account);
+
+        // Deposit
+        auditService.log(loggedInEmail, "DEPOSIT", "SUCCESS", null);
 
         // step 5 : send response
         return DepositWithdrawResponse.builder()
@@ -179,6 +201,9 @@ public class TransactionService {
         // step 2: check is he owner of account
         if(!account.getUser().getEmail().equals(loggedInEmail))
         {
+            // IDOR attempt caught
+            auditService.log(loggedInEmail, "UNAUTHORIZED_TRANSFER", "FAILED", null);
+
             throw new UnauthorizedAccessException("Unauthorized access");
         }
 
@@ -186,6 +211,9 @@ public class TransactionService {
 
         if(account.getBalance().compareTo(request.getAmount()) < 0)
         {
+            // Insufficient funds
+            auditService.log(loggedInEmail, "TRANSFER_FAILED", "FAILED", null);
+
             throw new InsufficientFundsException("Insufficient funds!");
         }
 
@@ -193,6 +221,9 @@ public class TransactionService {
 
         // step 4 : saved account
         Account saved = accountRepository.save(account);
+
+        // Withdraw
+        auditService.log(loggedInEmail, "WITHDRAW", "SUCCESS", null);
 
         // step 5 : send response
         return DepositWithdrawResponse.builder()

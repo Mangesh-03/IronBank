@@ -7,5 +7,5 @@ import  java.util.List;
 
 public interface AuditRepository extends JpaRepository<AuditLog,Long>
 {
-    List<AuditLog> findByUserId(Long userId);
+    List<AuditLog> findByEmail(String email );
 }
