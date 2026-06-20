@@ -18,15 +18,6 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-//    @PostMapping("/register")
-//    public ResponseEntity<RegisterResponse> register(
-//            @Valid @RequestBody RegisterRequest request,  HttpServletRequest httpRequest)
-//    {
-//        String ip = httpRequest.getRemoteAddr();
-//
-//        return ResponseEntity.ok(authService.register(request,ip));
-//    }
-
     @PostMapping("/register/initiate")
     public ResponseEntity<RegisterResponse> registerInitiate(@Valid @RequestBody RegisterRequest request,HttpServletRequest httpRequest)
     {
