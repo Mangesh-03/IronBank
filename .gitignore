@@ -53,4 +53,4 @@ Thumbs.db
 # JAR/WAR files (built artifacts)
 *.jar
 *.war
-*.ear
+*.ear   

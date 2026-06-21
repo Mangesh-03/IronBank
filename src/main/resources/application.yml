@@ -3,21 +3,23 @@ spring:
     name: IronBank
 
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/ironbank?sslMode=${DB_SSL_MODE:DISABLED}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:yourpassword}
+    url: jdbc:mysql://localhost:3306/ironbank
+    username: root
+    password: ""
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: false
+    properties:
+      hibernate:
 
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:logfile29@gmail.com}
-    password: ${MAIL_PASSWORD:}
+    username: logfile29@gmail.com
+    password: obap nppd cmet gcex  # ← your app password here
     properties:
       mail:
         smtp:
@@ -26,17 +28,13 @@ spring:
             enable: true
 
 jwt:
-  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
   expiration: 900000
-
-otp:
-  expiration: 600000
 
 server:
   error:
     include-stacktrace: never
     include-message: never
 
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
+otp:
+  expiration : 900000
